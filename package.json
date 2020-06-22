@@ -1,0 +1,23 @@
+{
+  "name": "chessengine",
+  "version": "1.0",
+  "description": "a simple chess engine built on js with MiniMax and MiniMax Alpha Beta Pruning algorithm",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+   "keywords": [
+    "chessEngine",
+    "node",
+    "express",
+    "chess.js",
+    "minimax",
+    "AlphaBetaPruning"
+  ],
+  "author": "Kishore Karanam",
+  "license": "MIT",
+  "dependencies": {
+    "chess.js": "^0.11.0",
+    "express": "^4.17.1"
+  }
+}
