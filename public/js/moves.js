@@ -1,20 +1,13 @@
-/**
- * Finds a random move to make
- * @return {string} move to make
- */
+//RANDOM
 var randomMove = function() {
   var possibleMoves = game.moves();
   var randomIndex = Math.floor(Math.random() * possibleMoves.length);
   return possibleMoves[randomIndex];
 };
 
-/**
- * Evaluates current chess board relative to player
- * @param {string} color - Players color, either 'b' or 'w'
- * @return {Number} board value relative to player
- */
+//EVALUATE AND CALCULATE
 var evaluateBoard = function(board, color) {
-  // Sets the value for each piece using standard piece value
+  // set value for each piece
   var pieceValue = {
     'p': 100,
     'n': 350,
@@ -24,12 +17,12 @@ var evaluateBoard = function(board, color) {
     'k': 10000
   };
 
-  // Loop through all pieces on the board and sum up total
+  // Loop through each piece and sum
   var value = 0;
   board.forEach(function(row) {
     row.forEach(function(piece) {
       if (piece) {
-        // Subtract piece value if it is opponent's piece
+        // if it's opponents piece then subtract
         value += pieceValue[piece['type']]
                  * (piece['color'] === color ? 1 : -1);
       }
@@ -39,21 +32,17 @@ var evaluateBoard = function(board, color) {
   return value;
 };
 
-/**
- * Calculates the best move looking one move ahead
- * @param {string} playerColor - Players color, either 'b' or 'w'
- * @return {string} the best move
- */
+//Calulates one move ahead
 var calcBestMoveOne = function(playerColor) {
-  // List all possible moves
-  var possibleMoves = game.moves();
-  // Sort moves randomly, so the same move isn't always picked on ties
+
+  var possibleMoves = game.moves();//all possible moves
+  //Sort the moves as same won't be picked each time
   possibleMoves.sort(function(a, b){return 0.5 - Math.random()});
 
-  // exit if the game is over
+  // If game done, then exit
   if (game.game_over() === true || possibleMoves.length === 0) return;
 
-  // Search for move with highest value
+  // search the move with highest value
   var bestMoveSoFar = null;
   var bestMoveValue = Number.NEGATIVE_INFINITY;
   possibleMoves.forEach(function(move) {
@@ -69,26 +58,19 @@ var calcBestMoveOne = function(playerColor) {
   return bestMoveSoFar;
 }
 
-/**
- * Calculates the best move using Minimax without Alpha Beta Pruning.
- * @param {Number} depth - How many moves ahead to evaluate
- * @param {Object} game - The game to evaluate
- * @param {string} playerColor - Players color, either 'b' or 'w'
- * @param {Boolean} isMaximizingPlayer - If current turn is maximizing or minimizing player
- * @return {Array} The best move value, and the best move
- */
+//MINIMAX
 var calcBestMoveNoAB = function(depth, game, playerColor,
                                 isMaximizingPlayer=true) {
-  // Base case: evaluate board
+  // If already at base, return
   if (depth === 0) {
     value = evaluateBoard(game.board(), playerColor);
     return [value, null]
   }
 
-  // Recursive case: search possible moves
-  var bestMove = null; // best move not set yet
-  var possibleMoves = game.moves();
-  // Set random order for possible moves
+  // BestMove can be obtained via recursion
+  var bestMove = null;
+  var possibleMoves = game.moves(); //all possiblr moves
+  // Sort so that same won't be picked each time
   possibleMoves.sort(function(a, b){return 0.5 - Math.random()});
   // Set a default best move value
   var bestMoveValue = isMaximizingPlayer ? Number.NEGATIVE_INFINITY
@@ -96,11 +78,9 @@ var calcBestMoveNoAB = function(depth, game, playerColor,
   // Search through all possible moves
   for (var i = 0; i < possibleMoves.length; i++) {
     var move = possibleMoves[i];
-    // Make the move, but undo before exiting loop
-    game.move(move);
-    // Recursively get the value of this move
+    game.move(move); //make move
+    // Recursively get the values
     value = calcBestMoveNoAB(depth-1, game, playerColor, !isMaximizingPlayer)[0];
-    // Log the value of this move
     console.log(isMaximizingPlayer ? 'Max: ' : 'Min: ', depth, move, value,
                 bestMove, bestMoveValue);
 
@@ -117,51 +97,34 @@ var calcBestMoveNoAB = function(depth, game, playerColor,
         bestMove = move;
       }
     }
-    // Undo previous move
     game.undo();
   }
-  // Log the best move at the current depth
   console.log('Depth: ' + depth + ' | Best Move: ' + bestMove + ' | ' + bestMoveValue);
   // Return the best move, or the only move
   return [bestMoveValue, bestMove || possibleMoves[0]];
 }
 
-/**
- * Calculates the best move using Minimax with Alpha Beta Pruning.
- * @param {Number} depth - How many moves ahead to evaluate
- * @param {Object} game - The game to evaluate
- * @param {string} playerColor - Players color, either 'b' or 'w'
- * @param {Number} alpha
- * @param {Number} beta
- * @param {Boolean} isMaximizingPlayer - If current turn is maximizing or minimizing player
- * @return {Array} The best move value, and the best move
- */
-var calcBestMove = function(depth, game, playerColor,
-                            alpha=Number.NEGATIVE_INFINITY,
-                            beta=Number.POSITIVE_INFINITY,
-                            isMaximizingPlayer=true) {
-  // Base case: evaluate board
+//MINIMAX ALPHA BETA PRUNING
+var calcBestMove = function(depth, game, playerColor, alpha=Number.NEGATIVE_INFINITY,beta=Number.POSITIVE_INFINITY,isMaximizingPlayer=true) {
+  //If already at the base, return the evaluated
   if (depth === 0) {
     value = evaluateBoard(game.board(), playerColor);
     return [value, null]
   }
 
-  // Recursive case: search possible moves
-  var bestMove = null; // best move not set yet
-  var possibleMoves = game.moves();
-  // Set random order for possible moves
+  // possible moves can be obtained recursively
+  var bestMove = null; 
+  var possibleMoves = game.moves(); //all possible moves
+  // Sort so that same won't be picked each time
   possibleMoves.sort(function(a, b){return 0.5 - Math.random()});
-  // Set a default best move value
   var bestMoveValue = isMaximizingPlayer ? Number.NEGATIVE_INFINITY
                                          : Number.POSITIVE_INFINITY;
   // Search through all possible moves
   for (var i = 0; i < possibleMoves.length; i++) {
     var move = possibleMoves[i];
-    // Make the move, but undo before exiting loop
     game.move(move);
-    // Recursively get the value from this move
+    //value can be obtained recursively
     value = calcBestMove(depth-1, game, playerColor, alpha, beta, !isMaximizingPlayer)[0];
-    // Log the value of this move
     console.log(isMaximizingPlayer ? 'Max: ' : 'Min: ', depth, move, value,
                 bestMove, bestMoveValue);
 
@@ -180,7 +143,6 @@ var calcBestMove = function(depth, game, playerColor,
       }
       beta = Math.min(beta, value);
     }
-    // Undo previous move
     game.undo();
     // Check for alpha beta pruning
     if (beta <= alpha) {
@@ -188,7 +150,6 @@ var calcBestMove = function(depth, game, playerColor,
       break;
     }
   }
-  // Log the best move at the current depth
   console.log('Depth: ' + depth + ' | Best Move: ' + bestMove + ' | ' + bestMoveValue + ' | A: ' + alpha + ' | B: ' + beta);
   // Return the best move, or the only move
   return [bestMoveValue, bestMove || possibleMoves[0]];
