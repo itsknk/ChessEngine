@@ -1,4 +1,4 @@
-## ChessEngineAI
+## ChessEngine
 A simple chess AI built on node using chess.js and chessboard.js
 
 Check the demo here: https://chess-engine-ai.herokuapp.com/
